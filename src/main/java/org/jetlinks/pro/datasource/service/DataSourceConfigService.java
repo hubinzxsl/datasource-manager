@@ -9,6 +9,7 @@ import org.jetlinks.pro.datasource.DataSourceConfigManager;
 import org.jetlinks.pro.datasource.entity.DataSourceConfigEntity;
 import org.jetlinks.pro.datasource.enums.DataSourceConfigState;
 import org.jetlinks.pro.gateway.annotation.Subscribe;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
@@ -19,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
 @Service
-public class DataSourceConfigService extends GenericReactiveCrudService<DataSourceConfigEntity, String> implements DataSourceConfigManager {
+public class DataSourceConfigService extends GenericReactiveCrudService<DataSourceConfigEntity, String> implements DataSourceConfigManager, CommandLineRunner {
 
     private final EventBus eventBus;
 
@@ -57,11 +58,11 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
     @Subscribe(value = "/_sys/datasource-changed", features = Subscription.Feature.broker)
     public Mono<Void> reloadDataSource(String id) {
         return findById(id)
-            .doOnNext(this::fileChanged)
+            .doOnNext(this::fireChanged)
             .then();
     }
 
-    private void fileChanged(DataSourceConfigEntity entity) {
+    private void fireChanged(DataSourceConfigEntity entity) {
         entity.getShareConfig(serverId)
               .ifPresent(conf -> {
                   for (BiConsumer<ConfigState, DataSourceConfig> callback : callbacks) {
@@ -82,5 +83,17 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
     public Disposable doOnConfigChanged(BiConsumer<ConfigState, DataSourceConfig> callback) {
         callbacks.add(callback);
         return () -> callbacks.remove(callback);
+    }
+
+    @Override
+    public void run(String... args) {
+        if (callbacks.size() > 0) {
+            //启动时重新加载数据源
+            createQuery()
+                .where(DataSourceConfigEntity::getState, DataSourceConfigState.enabled)
+                .fetch()
+                .doOnNext(this::fireChanged)
+                .subscribe();
+        }
     }
 }
