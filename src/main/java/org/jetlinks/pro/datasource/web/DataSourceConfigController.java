@@ -3,18 +3,21 @@ package org.jetlinks.pro.datasource.web;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hswebframework.web.authorization.annotation.QueryAction;
 import org.hswebframework.web.authorization.annotation.Resource;
 import org.hswebframework.web.authorization.annotation.SaveAction;
 import org.jetlinks.pro.datasource.DataSourceConfig;
+import org.jetlinks.pro.datasource.DataSourceManager;
+import org.jetlinks.pro.datasource.DataSourceType;
 import org.jetlinks.pro.datasource.entity.DataSourceConfigEntity;
 import org.jetlinks.pro.datasource.enums.DataSourceConfigState;
 import org.jetlinks.pro.datasource.service.DataSourceConfigService;
 import org.jetlinks.pro.tenant.annotation.TenantAssets;
 import org.jetlinks.pro.tenant.crud.TenantAccessCrudController;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
@@ -28,10 +31,42 @@ public class DataSourceConfigController implements TenantAccessCrudController<Da
     @Getter
     private final DataSourceConfigService service;
 
-    @PutMapping("/{id}/{state}")
+    private final DataSourceManager dataSourceManager;
+
+    @PutMapping("/{id}/_enable")
     @SaveAction
-    public Mono<Void> changeState(@PathVariable String id,
-                                  @PathVariable DataSourceConfigState state) {
-        return service.changeState(id, state);
+    public Mono<Void> enable(@PathVariable String id) {
+        return service.changeState(id, DataSourceConfigState.enabled);
     }
+
+    @PutMapping("/{id}/_disable")
+    @SaveAction
+    public Mono<Void> disable(@PathVariable String id) {
+        return service.changeState(id, DataSourceConfigState.disabled);
+    }
+
+    @GetMapping("/types")
+    @QueryAction
+    public Flux<DataSourceTypeView> getTypes() {
+        return Flux
+            .fromIterable(
+                dataSourceManager.getSupportedType()
+            )
+            .map(DataSourceTypeView::of);
+    }
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DataSourceTypeView {
+        private String id;
+        private String name;
+
+        public static DataSourceTypeView of(DataSourceType dataSourceType) {
+            return new DataSourceTypeView(dataSourceType.getId(), dataSourceType.getName());
+        }
+    }
+
 }
