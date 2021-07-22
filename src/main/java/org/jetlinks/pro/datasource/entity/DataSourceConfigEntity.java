@@ -9,6 +9,7 @@ import org.hswebframework.ezorm.rdb.mapping.annotation.DefaultValue;
 import org.hswebframework.ezorm.rdb.mapping.annotation.EnumCodec;
 import org.hswebframework.ezorm.rdb.mapping.annotation.JsonCodec;
 import org.hswebframework.web.api.crud.entity.GenericEntity;
+import org.hswebframework.web.crud.annotation.EnableEntityEvent;
 import org.hswebframework.web.validator.CreateGroup;
 import org.jetlinks.pro.datasource.DataSourceConfig;
 import org.jetlinks.pro.datasource.enums.DataSourceConfigState;
@@ -25,6 +26,7 @@ import java.util.Optional;
 @Getter
 @Setter
 @Table(name = "data_source_config")
+@EnableEntityEvent
 public class DataSourceConfigEntity extends GenericEntity<String> {
 
     @Column(length = 32, nullable = false, updatable = false)

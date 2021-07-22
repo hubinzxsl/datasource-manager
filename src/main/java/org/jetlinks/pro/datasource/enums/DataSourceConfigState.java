@@ -8,8 +8,8 @@ import org.jetlinks.pro.datasource.DataSourceConfigManager;
 @Getter
 @AllArgsConstructor
 public enum DataSourceConfigState implements I18nEnumDict<String> {
-    enabled("启用", DataSourceConfigManager.ConfigState.normal),
-    disabled("禁用", DataSourceConfigManager.ConfigState.disabled);
+    enabled("正常", DataSourceConfigManager.ConfigState.normal),
+    disabled("已禁用", DataSourceConfigManager.ConfigState.disabled);
 
     private final String text;
     private final DataSourceConfigManager.ConfigState configState;
