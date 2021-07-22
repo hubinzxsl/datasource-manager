@@ -1,5 +1,6 @@
 package org.jetlinks.pro.datasource.service;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hswebframework.web.crud.service.GenericReactiveCrudService;
 import org.jetlinks.core.cluster.ClusterManager;
 import org.jetlinks.core.event.EventBus;
@@ -9,9 +10,11 @@ import org.jetlinks.pro.datasource.DataSourceConfigManager;
 import org.jetlinks.pro.datasource.entity.DataSourceConfigEntity;
 import org.jetlinks.pro.datasource.enums.DataSourceConfigState;
 import org.jetlinks.pro.gateway.annotation.Subscribe;
+import org.reactivestreams.Publisher;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -60,6 +63,22 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
         return findById(id)
             .doOnNext(this::fireChanged)
             .then();
+    }
+
+    @Override
+    public Mono<Integer> deleteById(Publisher<String> idPublisher) {
+
+        return Flux
+            .from(idPublisher)
+            .collectList()
+            .filter(CollectionUtils::isNotEmpty)
+            .flatMap(list -> this
+                .createDelete()
+                .where(DataSourceConfigEntity::getState, DataSourceConfigState.disabled)
+                .in(DataSourceConfigEntity::getId, list)
+                .execute()
+            )
+            .defaultIfEmpty(0);
     }
 
     private void fireChanged(DataSourceConfigEntity entity) {
