@@ -10,6 +10,7 @@ import org.hswebframework.ezorm.rdb.mapping.annotation.EnumCodec;
 import org.hswebframework.ezorm.rdb.mapping.annotation.JsonCodec;
 import org.hswebframework.web.api.crud.entity.GenericEntity;
 import org.hswebframework.web.crud.annotation.EnableEntityEvent;
+import org.hswebframework.web.crud.generator.Generators;
 import org.hswebframework.web.validator.CreateGroup;
 import org.jetlinks.pro.datasource.DataSourceConfig;
 import org.jetlinks.pro.datasource.enums.DataSourceConfigState;
@@ -18,10 +19,7 @@ import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import java.sql.JDBCType;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Getter
 @Setter
@@ -41,6 +39,11 @@ public class DataSourceConfigEntity extends GenericEntity<String> {
     @Column
     @Schema(description = "说明")
     private String description;
+
+    @Column(updatable = false)
+    @DefaultValue(generator = Generators.CURRENT_TIME)
+    @Schema(description = "创建时间(只读)")
+    private Date createTime;
 
     @Column
     @JsonCodec
