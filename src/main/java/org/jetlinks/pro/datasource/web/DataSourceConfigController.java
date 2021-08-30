@@ -10,7 +10,6 @@ import lombok.Setter;
 import org.hswebframework.web.authorization.annotation.QueryAction;
 import org.hswebframework.web.authorization.annotation.Resource;
 import org.hswebframework.web.authorization.annotation.SaveAction;
-import org.jetlinks.pro.datasource.DataSourceConfig;
 import org.jetlinks.pro.datasource.DataSourceManager;
 import org.jetlinks.pro.datasource.DataSourceType;
 import org.jetlinks.pro.datasource.entity.DataSourceConfigEntity;
