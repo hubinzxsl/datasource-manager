@@ -1,23 +1,14 @@
 package org.jetlinks.pro.datasource.web;
 
 import com.alibaba.fastjson.JSON;
-import org.jetlinks.pro.assets.DefaultAsset;
-import org.jetlinks.pro.datasource.DataSourceConfig;
-import org.jetlinks.pro.datasource.MockDataSourceProvider;
 import org.jetlinks.pro.datasource.entity.ClusterDataSourceConfig;
 import org.jetlinks.pro.datasource.entity.DataSourceConfigEntity;
 import org.jetlinks.pro.datasource.enums.DataSourceConfigState;
-import org.jetlinks.pro.datasource.service.DataSourceConfigService;
-import org.jetlinks.pro.datasource.tenant.DatasourceAssetType;
-import org.jetlinks.pro.datasource.tenant.DatasourceAssetsSupplier;
 import org.jetlinks.pro.test.spring.TestJetLinksController;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,17 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @WebFluxTest(DataSourceConfigController.class)
 class DataSourceConfigControllerTest extends TestJetLinksController {
-    @Autowired
-    MockDataSourceProvider   mockDataSourceProvider;
-    @Autowired
-    DatasourceAssetsSupplier datasourceAssetsSupplier;
-    @Autowired
-    DataSourceConfigService dataSourceConfigService;
-
-    public static final String BASE_URL = "/datasource/config";
-    public static final String ID_1     = "test001";
-    public static final String ID_2     = "test002";
-    public static final String ID_3     = "test003";
+    public static final String TYPE_ID   = "mock";
+    public static final String TYPE_NAME = "Mock";
+    public static final String BASE_URL  = "/datasource/config";
+    public static final String ID_1      = "test001";
+    public static final String ID_2      = "test002";
+    public static final String ID_3      = "test003";
 
     @Test
     void types() {
@@ -51,8 +37,8 @@ class DataSourceConfigControllerTest extends TestJetLinksController {
         assertNotNull(list);
         assertEquals(1, list.size());
         assertNotNull(list.get(0));
-        assertEquals(mockDataSourceProvider.getType().getId(), list.get(0).getId());
-        assertEquals(mockDataSourceProvider.getType().getName(), list.get(0).getName());
+        assertEquals(TYPE_ID, list.get(0).getId());
+        assertEquals(TYPE_NAME, list.get(0).getName());
     }
 
     @Test
@@ -63,8 +49,6 @@ class DataSourceConfigControllerTest extends TestJetLinksController {
         DataSourceConfigEntity entity = findById(ID_1);
         assertEquals(ID_1, entity.getId());
 
-        getAssets();
-        getConfig();
         edit();
         enable();
         disable();
@@ -76,7 +60,7 @@ class DataSourceConfigControllerTest extends TestJetLinksController {
 
     void add() {
         DataSourceConfigEntity entity = new DataSourceConfigEntity();
-        entity.setTypeId(mockDataSourceProvider.getType().getId());
+        entity.setTypeId(TYPE_ID);
         entity.setId(ID_1);
         entity.setName("test");
         entity.setDescription("单元测试");
@@ -98,7 +82,7 @@ class DataSourceConfigControllerTest extends TestJetLinksController {
             .is2xxSuccessful();
 
         DataSourceConfigEntity entity2 = new DataSourceConfigEntity();
-        entity2.setTypeId(mockDataSourceProvider.getType().getId());
+        entity2.setTypeId(TYPE_ID);
         entity2.setId(ID_2);
         entity2.setName("test2");
         entity2.setDescription("单元测试");
@@ -116,7 +100,7 @@ class DataSourceConfigControllerTest extends TestJetLinksController {
             .is2xxSuccessful();
 
         DataSourceConfigEntity entity3 = new DataSourceConfigEntity();
-        entity3.setTypeId(mockDataSourceProvider.getType().getId());
+        entity3.setTypeId(TYPE_ID);
         entity3.setId(ID_3);
         entity3.setName("test3");
         entity3.setDescription("单元测试");
@@ -134,7 +118,7 @@ class DataSourceConfigControllerTest extends TestJetLinksController {
     void edit() {
         String newName = "test-2";
         DataSourceConfigEntity entity = new DataSourceConfigEntity();
-        entity.setTypeId(mockDataSourceProvider.getType().getId());
+        entity.setTypeId(TYPE_ID);
         entity.setId(ID_1);
         entity.setName(newName);
 
@@ -184,27 +168,6 @@ class DataSourceConfigControllerTest extends TestJetLinksController {
             .exchange()
             .expectStatus()
             .is2xxSuccessful();
-    }
-
-    void getAssets() {
-        datasourceAssetsSupplier.getAssets(DatasourceAssetType.datasource, Arrays.asList(ID_1, ID_2, ID_3))
-            .cast(DefaultAsset.class)
-            .filter(asset -> asset.getType().getName().equals(DatasourceAssetType.datasource.getName()))
-            .map(DefaultAsset::getId)
-            .as(StepVerifier::create)
-            .expectNext(ID_1)
-            .expectNext(ID_2)
-            .expectNext(ID_3)
-            .verifyComplete();
-    }
-
-    void getConfig() {
-        dataSourceConfigService.getConfig(mockDataSourceProvider.getType().getId(), ID_1)
-            .map(DataSourceConfig::getConfiguration)
-            .map(map -> map.get("hostname"))
-            .as(StepVerifier::create)
-            .expectNext("test")
-            .verifyComplete();
     }
 
     DataSourceConfigEntity findById(String id) {
