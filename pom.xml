@@ -62,6 +62,12 @@
 
         <dependency>
             <groupId>org.jetlinks.pro</groupId>
+            <artifactId>rule-engine-component</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetlinks.pro</groupId>
             <artifactId>test-component</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

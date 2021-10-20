@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 @Service
 public class DataSourceConfigService extends GenericReactiveCrudService<DataSourceConfigEntity, String> implements DataSourceConfigManager, CommandLineRunner {
@@ -29,7 +30,7 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
 
     private final String serverId;
 
-    private final List<BiConsumer<ConfigState, DataSourceConfig>> callbacks = new CopyOnWriteArrayList<>();
+    private final List<BiFunction<ConfigState, DataSourceConfig, Mono<Void>>> callbacks = new CopyOnWriteArrayList<>();
 
     public DataSourceConfigService(EventBus eventBus, ClusterManager clusterManager) {
         this.eventBus = eventBus;
@@ -61,8 +62,7 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
     @Subscribe(value = "/_sys/datasource-changed", features = Subscription.Feature.broker)
     public Mono<Void> reloadDataSource(String id) {
         return findById(id)
-            .doOnNext(this::fireChanged)
-            .then();
+            .flatMap(this::fireChanged);
     }
 
     @Override
@@ -81,13 +81,15 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
             .defaultIfEmpty(0);
     }
 
-    private void fireChanged(DataSourceConfigEntity entity) {
-        entity.getShareConfig(serverId)
-              .ifPresent(conf -> {
-                  for (BiConsumer<ConfigState, DataSourceConfig> callback : callbacks) {
-                      callback.accept(entity.getState().getConfigState(), conf);
-                  }
-              });
+    private Mono<Void> fireChanged(DataSourceConfigEntity entity) {
+        return entity
+            .getShareConfig(serverId)
+            .map(conf -> Flux
+                .fromIterable(callbacks)
+                .map(callback -> callback.apply(entity.getState().getConfigState(), conf))
+                .as(Flux::concat))
+            .orElse(Flux.empty())
+            .then();
     }
 
     private Mono<Void> doReloadDataSource(String id) {
@@ -99,20 +101,20 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
     }
 
     @Override
-    public Disposable doOnConfigChanged(BiConsumer<ConfigState, DataSourceConfig> callback) {
+    public Disposable doOnConfigChanged(BiFunction<ConfigState, DataSourceConfig, Mono<Void>> callback) {
         callbacks.add(callback);
         return () -> callbacks.remove(callback);
     }
 
     @Override
     public void run(String... args) {
-        if (callbacks.size() > 0) {
-            //启动时重新加载数据源
-            createQuery()
-                .where(DataSourceConfigEntity::getState, DataSourceConfigState.enabled)
-                .fetch()
-                .doOnNext(this::fireChanged)
-                .subscribe();
-        }
+//        if (callbacks.size() > 0) {
+//            //启动时重新加载数据源
+//            createQuery()
+//                .where(DataSourceConfigEntity::getState, DataSourceConfigState.enabled)
+//                .fetch()
+//                .doOnNext(this::fireChanged)
+//                .subscribe();
+//        }
     }
 }
