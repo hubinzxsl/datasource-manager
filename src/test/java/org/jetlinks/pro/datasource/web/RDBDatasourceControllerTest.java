@@ -92,6 +92,15 @@ class RDBDatasourceControllerTest extends TestJetLinksController {
         assertFalse(tables.isEmpty());
         assertNotNull(tables.get(0).getColumns());
 
+        client
+            .post()
+            .uri("/datasource/rdb/test-rdb/table/s_test/drop-column")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue("[\"name\"]")
+            .exchange()
+            .expectStatus()
+            .is2xxSuccessful();
+
         Table parsedTable = client
             .get()
             .uri("/datasource/rdb/test-rdb/table/s_test")
@@ -101,7 +110,8 @@ class RDBDatasourceControllerTest extends TestJetLinksController {
             .expectBody(Table.class)
             .returnResult()
             .getResponseBody();
-
+        assertNotNull(parsedTable);
         assertNotNull(parsedTable.getColumns());
+        assertEquals(1,parsedTable.getColumns().size());
     }
 }
