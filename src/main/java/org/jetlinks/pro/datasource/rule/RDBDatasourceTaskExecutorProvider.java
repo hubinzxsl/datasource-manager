@@ -49,7 +49,7 @@ public class RDBDatasourceTaskExecutorProvider implements TaskExecutorProvider {
 
         public RDBDatasourceTaskExecutor(ExecutionContext context) {
             super(context);
-            reload();
+            init();
         }
 
         @Override
@@ -72,13 +72,19 @@ public class RDBDatasourceTaskExecutorProvider implements TaskExecutorProvider {
                 .subscribe();
         }
 
+        protected void init() {
+            this.properties = FastBeanCopier
+                .copy(context.getJob().getConfiguration(),
+                      RDBDatasourceTaskProperties::new);
+        }
+
         @Override
         public void reload() {
+            init();
             if (this.disposable != null) {
                 this.disposable.dispose();
             }
-            this.properties = FastBeanCopier.copy(context.getJob().getConfiguration(),
-                                                  RDBDatasourceTaskProperties::new);
+            this.disposable = doStart();
         }
     }
 
