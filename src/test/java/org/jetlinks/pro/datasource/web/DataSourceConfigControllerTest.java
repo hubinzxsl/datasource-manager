@@ -7,6 +7,7 @@ import org.jetlinks.pro.datasource.enums.DataSourceConfigState;
 import org.jetlinks.pro.test.spring.TestJetLinksController;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -34,11 +36,8 @@ class DataSourceConfigControllerTest extends TestJetLinksController {
             .expectBodyList(DataSourceConfigController.DataSourceTypeView.class)
             .returnResult()
             .getResponseBody();
-        assertNotNull(list);
-        assertEquals(1, list.size());
-        assertNotNull(list.get(0));
-        assertEquals(TYPE_ID, list.get(0).getId());
-        assertEquals(TYPE_NAME, list.get(0).getName());
+        assertFalse(CollectionUtils.isEmpty(list));
+        assertNotNull(list.stream().filter(type -> TYPE_ID.equals(type.getId())).findAny().orElse(null));
     }
 
     @Test
