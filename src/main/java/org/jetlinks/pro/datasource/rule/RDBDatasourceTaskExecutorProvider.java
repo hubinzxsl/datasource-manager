@@ -1,6 +1,7 @@
 package org.jetlinks.pro.datasource.rule;
 
 import lombok.AllArgsConstructor;
+import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
@@ -35,6 +36,7 @@ public class RDBDatasourceTaskExecutorProvider implements TaskExecutorProvider {
     private final DataSourceManager dataSourceManager;
 
     @Override
+    @Generated
     public String getExecutor() {
         return "rdb-operation";
     }
@@ -53,6 +55,7 @@ public class RDBDatasourceTaskExecutorProvider implements TaskExecutorProvider {
         }
 
         @Override
+        @Generated
         public String getName() {
             return "RDB Operation";
         }
