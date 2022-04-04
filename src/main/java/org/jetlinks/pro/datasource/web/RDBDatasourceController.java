@@ -5,10 +5,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.hswebframework.web.authorization.annotation.Resource;
 import org.hswebframework.web.authorization.annotation.ResourceAction;
+import org.jetlinks.pro.assets.annotation.AssetsController;
 import org.jetlinks.pro.datasource.DataSourceManager;
 import org.jetlinks.pro.datasource.rdb.RDBDataSourceType;
 import org.jetlinks.pro.datasource.rdb.command.*;
-import org.jetlinks.pro.tenant.annotation.TenantAssets;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 @RestController
 @Resource(id = "datasource-config", name = "数据源配置")
-@TenantAssets(type = "datasource")
+@AssetsController(type = "datasource")
 @Tag(name = "关系型数据库管理")
 @RequestMapping("/datasource/rdb")
 @AllArgsConstructor

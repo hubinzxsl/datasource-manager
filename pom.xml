@@ -68,7 +68,7 @@
 
         <dependency>
             <groupId>org.jetlinks.pro</groupId>
-            <artifactId>tenant-component</artifactId>
+            <artifactId>assets-component</artifactId>
             <version>${project.version}</version>
         </dependency>
 

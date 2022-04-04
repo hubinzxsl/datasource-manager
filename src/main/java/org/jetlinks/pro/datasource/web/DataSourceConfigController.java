@@ -10,13 +10,13 @@ import lombok.Setter;
 import org.hswebframework.web.authorization.annotation.QueryAction;
 import org.hswebframework.web.authorization.annotation.Resource;
 import org.hswebframework.web.authorization.annotation.SaveAction;
+import org.jetlinks.pro.assets.annotation.AssetsController;
+import org.jetlinks.pro.assets.crud.AssetsHolderCrudController;
 import org.jetlinks.pro.datasource.DataSourceManager;
 import org.jetlinks.pro.datasource.DataSourceType;
 import org.jetlinks.pro.datasource.entity.DataSourceConfigEntity;
 import org.jetlinks.pro.datasource.enums.DataSourceConfigState;
 import org.jetlinks.pro.datasource.service.DataSourceConfigService;
-import org.jetlinks.pro.tenant.annotation.TenantAssets;
-import org.jetlinks.pro.tenant.crud.TenantAccessCrudController;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,9 +25,9 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/datasource/config")
 @Resource(id = "datasource-config", name = "数据源配置")
-@TenantAssets(type = "datasource")
+@AssetsController(type = "datasource")
 @Tag(name = "数据源管理")
-public class DataSourceConfigController implements TenantAccessCrudController<DataSourceConfigEntity, String> {
+public class DataSourceConfigController implements AssetsHolderCrudController<DataSourceConfigEntity, String> {
 
     @Getter
     private final DataSourceConfigService service;
