@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 import org.hswebframework.ezorm.rdb.mapping.annotation.ColumnType;
+import org.hswebframework.ezorm.rdb.mapping.annotation.Comment;
 import org.hswebframework.ezorm.rdb.mapping.annotation.DefaultValue;
 import org.hswebframework.ezorm.rdb.mapping.annotation.EnumCodec;
 import org.hswebframework.ezorm.rdb.mapping.annotation.JsonCodec;
@@ -25,6 +26,7 @@ import java.util.*;
 @Getter
 @Setter
 @Table(name = "data_source_config")
+@Comment("数据源信息表")
 @EnableEntityEvent
 public class DataSourceConfigEntity extends GenericEntity<String> implements RecordCreationEntity {
 
@@ -84,7 +86,7 @@ public class DataSourceConfigEntity extends GenericEntity<String> implements Rec
     @EnumCodec
     @ColumnType(javaType = String.class)
     @Schema(description = "配置状态")
-    @DefaultValue("enabled")
+    @DefaultValue("disabled")
     private DataSourceConfigState state;
 
     public Optional<DataSourceConfig> getShareConfig(String currentServerId) {

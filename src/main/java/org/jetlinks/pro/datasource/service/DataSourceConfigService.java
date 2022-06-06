@@ -1,6 +1,7 @@
 package org.jetlinks.pro.datasource.service;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.hswebframework.web.api.crud.entity.TransactionManagers;
 import org.hswebframework.web.crud.service.GenericReactiveCrudService;
 import org.jetlinks.core.cluster.ClusterManager;
 import org.jetlinks.core.event.EventBus;
@@ -13,6 +14,7 @@ import org.jetlinks.pro.gateway.annotation.Subscribe;
 import org.reactivestreams.Publisher;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,6 +40,7 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
     }
 
 
+    @Transactional(transactionManager = TransactionManagers.reactiveTransactionManager)
     public Mono<Void> changeState(String id, DataSourceConfigState state) {
         return createUpdate()
             .set(DataSourceConfigEntity::getState, state)
