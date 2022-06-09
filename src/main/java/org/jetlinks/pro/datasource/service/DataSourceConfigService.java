@@ -2,6 +2,9 @@ package org.jetlinks.pro.datasource.service;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.hswebframework.web.api.crud.entity.TransactionManagers;
+import org.hswebframework.web.crud.events.EntityDeletedEvent;
+import org.hswebframework.web.crud.events.EntityModifyEvent;
+import org.hswebframework.web.crud.events.EntitySavedEvent;
 import org.hswebframework.web.crud.service.GenericReactiveCrudService;
 import org.jetlinks.core.cluster.ClusterManager;
 import org.jetlinks.core.event.EventBus;
@@ -13,6 +16,7 @@ import org.jetlinks.pro.datasource.enums.DataSourceConfigState;
 import org.jetlinks.pro.gateway.annotation.Subscribe;
 import org.reactivestreams.Publisher;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.Disposable;
@@ -46,9 +50,7 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
             .set(DataSourceConfigEntity::getState, state)
             .where(DataSourceConfigEntity::getId, id)
             .execute()
-            .then(
-                doReloadDataSource(id)
-            );
+            .then();
     }
 
     @Override
@@ -82,6 +84,24 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
                 .execute()
             )
             .defaultIfEmpty(0);
+    }
+
+    @EventListener
+    public void handleConfigModifyEvent(EntityModifyEvent<DataSourceConfigEntity> event) {
+        event.async(
+            Flux.fromIterable(event.getAfter())
+                .map(DataSourceConfigEntity::getId)
+                .flatMap(this::doReloadDataSource)
+        );
+    }
+
+    @EventListener
+    public void handleConfigSaveEvent(EntitySavedEvent<DataSourceConfigEntity> event) {
+        event.async(
+            Flux.fromIterable(event.getEntity())
+                .map(DataSourceConfigEntity::getId)
+                .flatMap(this::doReloadDataSource)
+        );
     }
 
     private Mono<Void> fireChanged(DataSourceConfigEntity entity) {
