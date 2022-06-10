@@ -2,6 +2,7 @@ package org.jetlinks.pro.datasource.service;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.hswebframework.web.api.crud.entity.TransactionManagers;
+import org.hswebframework.web.crud.events.EntityCreatedEvent;
 import org.hswebframework.web.crud.events.EntityDeletedEvent;
 import org.hswebframework.web.crud.events.EntityModifyEvent;
 import org.hswebframework.web.crud.events.EntitySavedEvent;
@@ -99,6 +100,16 @@ public class DataSourceConfigService extends GenericReactiveCrudService<DataSour
     public void handleConfigSaveEvent(EntitySavedEvent<DataSourceConfigEntity> event) {
         event.async(
             Flux.fromIterable(event.getEntity())
+                .map(DataSourceConfigEntity::getId)
+                .flatMap(this::doReloadDataSource)
+        );
+    }
+
+    @EventListener
+    public void handleConfigCreateEvent(EntityCreatedEvent<DataSourceConfigEntity> event) {
+        event.async(
+            Flux.fromIterable(event.getEntity())
+                .filter(e -> e.getState() == DataSourceConfigState.enabled)
                 .map(DataSourceConfigEntity::getId)
                 .flatMap(this::doReloadDataSource)
         );

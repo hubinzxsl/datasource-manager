@@ -86,7 +86,7 @@ public class DataSourceConfigEntity extends GenericEntity<String> implements Rec
     @EnumCodec
     @ColumnType(javaType = String.class)
     @Schema(description = "配置状态")
-    @DefaultValue("disabled")
+    @DefaultValue("enabled")
     private DataSourceConfigState state;
 
     public Optional<DataSourceConfig> getShareConfig(String currentServerId) {
