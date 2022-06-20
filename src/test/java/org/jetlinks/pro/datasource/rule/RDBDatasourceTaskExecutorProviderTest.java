@@ -53,7 +53,7 @@ class RDBDatasourceTaskExecutorProviderTest {
                .thenReturn(Mono.just(dataSource));
 
         dataSource.execute(new CreateOrAlterTable(
-                      new Table("test_table", Arrays.asList(new Column("t", "BIGINT", false, 32, 0, 32, true, "test")))
+                      new Table("test_table", Arrays.asList(new Column("t","t", "BIGINT", false, 32, 0, 32, true, "test")))
                   ))
                   .as(StepVerifier::create)
                   .expectComplete()
