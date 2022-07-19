@@ -36,9 +36,9 @@ public class DataSourceConfigServiceTest {
 
         Mockito.when(repository.createQuery())
             .thenReturn(query);
-        Mockito.when(query.where(Mockito.any(StaticMethodReferenceColumn.class), Mockito.anyObject()))
+        Mockito.when(query.where(Mockito.any(StaticMethodReferenceColumn.class), Mockito.any()))
             .thenReturn(query);
-        Mockito.when(query.and(Mockito.any(StaticMethodReferenceColumn.class), Mockito.anyObject()))
+        Mockito.when(query.and(Mockito.any(StaticMethodReferenceColumn.class), Mockito.any()))
             .thenReturn(query);
         Mockito.when(query.fetch())
             .thenReturn(Flux.just(entity()));
