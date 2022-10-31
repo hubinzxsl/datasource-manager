@@ -74,8 +74,9 @@
 
         <dependency>
             <groupId>org.jetlinks.pro</groupId>
-            <artifactId>rule-engine-component</artifactId>
+            <artifactId>configure-component</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
