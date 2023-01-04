@@ -35,6 +35,7 @@ public class DatasourceAssetsSupplier implements AssetSupplier {
             .where()
             .in(DataSourceConfigEntity::getId, assetId)
             .fetch()
-            .map(ps -> new DefaultAsset(ps.getId(), ps.getName(), DatasourceAssetType.datasource));
+            .map(ps -> new DefaultAsset(ps.getId(), ps.getName(), DatasourceAssetType.datasource)
+                .withOption(Asset.OPTION_CREATOR_ID, ps.getCreatorId()));
     }
 }
