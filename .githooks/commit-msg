@@ -22,8 +22,17 @@
 #	echo >&2 Duplicate Signed-off-by lines.
 #	exit 1
 #}
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+if [[ $branch =~ ^(master|develop)$ ]]; then
+  echo "不允许直接提交到${branch}分支,请切换到新分支后提交."
+  exit 1
+fi
+
 MSG=`awk '{printf("%s",$0)}' $1`
-if [[ $MSG =~ ^(feat|fix|test|refactor|docs|style|chore|ci|revert|perf|build)\(.*\):.*$ ]]
+
+if [[ "$MSG" =~ ^(feat|fix|test|refactor|docs|style|chore|ci|revert|perf|build)\(.*\):.*$ || "$MSG" =~ ^(Merge).*$ ]];
 then
    echo "commit success!"
 else
@@ -34,8 +43,3 @@ else
        exit 1
 fi
 
-branch="$(git rev-parse --abbrev-ref HEAD)"
-if [ ["$branch" = "master"] || ["$branch" = "develop"] ]; then
-  echo "不允许直接提交到$branch分支,请切换到新分支后提交."
-  exit 1
-fi
